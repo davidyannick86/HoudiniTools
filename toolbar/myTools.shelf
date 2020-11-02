@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <toolshelf name="myTools" label="DYT Tools">
+    <memberTool name="makeMerge0"/>
+    <memberTool name="renamer0"/>
+  </toolshelf>
+
+  <tool name="renamer0" label="Renamer" icon="hicon:/SVGIcons.index?BUTTONS_edit.svg">
+    <script scriptType="python"><![CDATA[from imp import reload
+from Renamer.live_renamer import live_renamer
+
+nodes=hou.selectedNodes()
+renamer=live_renamer(nodes)
+
+renamer.show()]]></script>
+  </tool>
+
+  <tool name="renamer" label="Renamer" icon="hicon:/SVGIcons.index?BUTTONS_edit.svg">
+    <script scriptType="python"><![CDATA[from imp import reload
+from Renamer.live_renamer import live_renamer
+
+nodes=hou.selectedNodes()
+renamer=live_renamer(nodes)
+
+renamer.show()]]></script>
+  </tool>
+
+  <tool name="makeMerge0" label="Make Merge/Null" icon="hicon:/SVGIcons.index?book.svg">
+    <script scriptType="python"><![CDATA[def makeMerge():
+    snode=hou.selectedNodes()[0]
+    parent=snode.parent
+    yellow=hou.Color(1,0.65,0.0)
+    blue=hou.Color(0,0.5,1)
+    
+    nullName=hou.ui.readInput("Null name",buttons=('Ok','Cancel'))[1]
+    nullName=nullName.replace(" ","_")
+    
+    null=parent().createNode("null")
+    null.setColor(blue)
+    null.setInput(0,snode)
+    null.setName("OUT_%s"%nullName.upper(),unique_name=True)
+    null.setUserData("nodeshape","circle")
+
+    null.setPosition(snode.position())
+    null.move(hou.Vector2(0,-2))
+
+
+    om=parent().createNode("object_merge")
+    om.setColor(blue)
+    om.setName("GET_%s"%nullName.upper(),unique_name=True)
+    
+    om.parm("objpath1").set(snode.relativePathTo(null))
+    om.parm("xformtype").set("none")
+    
+    om.setUserData("nodeshape","circle")
+
+    om.setPosition(null.position())
+    om.move(hou.Vector2(0,-3))
+    
+    om.setDisplayFlag(1)
+    om.setTemplateFlag(1)
+    om.setRenderFlag(1)
+    
+makeMerge()
+]]></script>
+  </tool>
+</shelfDocument>
